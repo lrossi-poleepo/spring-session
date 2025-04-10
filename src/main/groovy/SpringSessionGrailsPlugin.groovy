@@ -9,6 +9,7 @@ import org.springframework.data.redis.connection.RedisSentinelConfiguration
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.session.web.http.CookieHttpSessionStrategy
+import org.springframework.session.web.http.DefaultCookieSerializer
 import org.springframework.session.web.http.HeaderHttpSessionStrategy
 import redis.clients.jedis.JedisShardInfo
 import utils.SpringSessionUtils
@@ -90,10 +91,10 @@ class SpringSessionGrailsPlugin extends Plugin {
                     headerName = conf.strategy.httpHeader.headerName
                 }
             } else {
+                DefaultCookieSerializer serializer = new DefaultCookieSerializer()
+                serializer.setCookieName(conf.strategy.cookie.name)
                 httpSessionStrategy(CookieHttpSessionStrategy) {
-                    cookieSerializer {
-                        cookieName = conf.strategy.cookie.name
-                    }
+                    cookieSerializer = serializer
                 }
             }
 

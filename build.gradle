@@ -8,13 +8,14 @@ buildscript {
     }
 }
 
-version "2.0.1"
+version "1.0.0"
 group "org.grails.plugins"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"org.grails.grails-plugin"
 apply plugin:"org.grails.grails-plugin-publish"
+apply plugin:"maven-publish"
 
 repositories {
     mavenLocal()
@@ -46,7 +47,7 @@ dependencies {
 
     testRuntime 'org.seleniumhq.selenium:selenium-chrome-driver:2.44.0'
 
-    compile "org.springframework.session:spring-session:1.3.1.RELEASE"
+    compile "org.springframework.session:spring-session:1.3.5.RELEASE"
     compile "org.springframework.data:spring-data-redis:1.7.4.RELEASE"
 
     compile "redis.clients:jedis:2.9.0"
@@ -56,47 +57,50 @@ task wrapper(type: Wrapper) {
     gradleVersion = gradleWrapperVersion
 }
 
-grailsPublish {
-    // TODO: Provide values here
-    githubSlug = 'jeetmp3/spring-session'
-    license {
-        name = 'Apache-2.0'
+test {
+    testLogging {
+        events 'started', 'passed'
     }
-    title = "Spring Session Grails Plugin"
-    desc = "Provides support for SpringSession project"
-    developers = [jeetmp3:"Jitendra Singh"]
-    portalUser = ""
-    portalPassword = ""
 }
 
-bintray {
-    pkg {
-        name = "$project.name"
-        issueTrackerUrl = "https://github.com/jeetmp3/$project.name/issues"
-        vcsUrl = "https://github.com/jeetmp3/$project.name"
-        version {
-            attributes = ['grails-plugin': "$project.group:$project.name"]
-            name = project.version
+test {
+    jvmArgs '-Xverify:none'
+}
+
+integrationTest {
+    jvmArgs '-Xverify:none'
+}
+
+integrationTest {
+    testLogging {
+        events 'started', 'passed'
+    }
+}
+
+publishing {
+    publications {
+        mavenGrailsPlugin(MavenPublication) {
+            from components.java
+            groupId = "cloud.poleepo.plugins"
+            artifactId = "poleepo-spring-session"
+            version = project.version
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://europe-maven.pkg.dev/poleepo/poleepo-maven"
+            credentials {
+                username "_json_key_base64"
+                password "IHsNCiAgInR5cGUiOiAic2VydmljZV9hY2NvdW50IiwNCiAgInByb2plY3RfaWQiOiAicG9sZWVwbyIsDQogICJwcml2YXRlX2tleV9pZCI6ICJmODJhYTI5ZjRiMGYwM2Y5ZjNjMDY1NWE0OGE2M2M1MGMxMmVmMGVkIiwNCiAgInByaXZhdGVfa2V5IjogIi0tLS0tQkVHSU4gUFJJVkFURSBLRVktLS0tLVxuTUlJRXZnSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS2d3Z2dTa0FnRUFBb0lCQVFDNkw4QmxUUGVGNU1GaVxuTXNKSVJhRU41TjlJYU5td1hWeldKc2I1VFpPbGs4dDJQSnFkOUgySE9YUkpIOWt5eWtBQnkrc3Y1U3oxaVVMSVxuQjdDbjlDWHIzRzl6ZmlnT1FBN2RMNjhDenRtT1hZY3pZVlAvcjRiRm5VTGJqcWZqRU5ybGZVdjVidG5VeXdEWlxub2dBY21uTkhpRTZqY3h3aW1Mb08rUkdpWm8ySlRPenNRTWEvd3hyRkVzOUFHK2M4RHB1dUE4NDVzU3BlNlJPNFxuQVYrOUR5NUhON0NYczRRUG5pNEp5ZFF0ZVQyYVp4NTNURkh5UlIySkZjUStibVZjOTlxcFRBUWJLbFVvSWtHN1xuV2VkNnVoLzRWYW5pZGkyV08yTVFFOWNOM0xmVmRkY2xsT3ArZzJZck9zditLNjdFOWFVRFBubytlcjc1MGxsbVxuUWZnLzU4bGRBZ01CQUFFQ2dnRUFFOExITVFrOCtTOUpEaDdVaTM2bVpCYmZVdXhiOUhISVRXdGlzV21ZS3RuM1xubllZN285bWo3QkwvUWxhWXd5RC9yNkVneGwzVXluK2x3SnkrVldrZWtEeStjSHZhalA2a0JUcFBJU1ZxcGtkTFxuZHZyVXd6MnlPRzJqUDdIUnBGSXc1V3dKd1FEUXFscmNiWHpaOWE4MzNvYjdUN0pETVhIVHg0eU1ZRmZ4bkRtSlxuRnVmaWlZOS9FZnpMQ1RCeUNCcy8yaHBVbkxRNXU1WGt0TnhpckVwMk16SnEvSG84cmZPNXd2bHhWWEZnVTdYVFxuZkxKUFpPUjJkUGlTTHptVTlReExXUmxudDFqTTF2K0pxVzNJT2NXUzN6eUZnR2IvRFA1R1pRUGk5ak4vMnpOaFxudEdualBYS29JV2VjYzJLZXRuOENsOGxGb1E0S2pIK2IvL09mcWl3ZUtRS0JnUURGdytaV3RkY3FjZWdUOVlRN1xuOVg4NVZCTURYdFhCZFM0VDhmdmVhQXJ1cXpyZUdtSGRMOVY3Qk1RK0xXUWVLVENLNXV0ZTBSZnBueFdsQjJaZVxuQWQ1VWhlM2lJOEIyQ2VoTFQ4c2xWTituNVpBR2FSdDY1d1ZEWlVwZllKVmJuOGNyYmkvUTdnR05yL3dBRVVqZ1xuZnpUR0JpVHNTWE5xZjZNTVByVjlmbUNGR1FLQmdRRHhBd1EzaStjNUdLbWo4dlFUY3BxdlArd3ZHVWhqbDdMZlxuZ1dEbHoxa3hVSFlWdmw4RDRWeGdoQkk1MnpjcWRqMlNOZW1iOFVXcUprMk5VQXhmeGR2dFRjMTlmNFlPZmdxSVxuM1dVTnZkRE5lL1ByanNHRmFCV3h1UUJjazU1WU15dStaSTRDMm13OUhyT2xTbGFQYUNYVysybHNLTEgrODh4TVxuYUM1dWZVUEs1UUtCZ1FDOTM4b2s4azExR1F2akxkUVo1U2lUR0I5eEd2cEwxWCs1OHBrSi9nYVJBNkZ2WVJFWVxuMWpZMitHcVo3K2F4OW9YK3RwckEzQ3dEUjVQMmNGWmVaNWpZdWdXZEd3cEx5bE5YQzNOVmtsbHh6N3dxQzN3d1xuMGVHQnhaeFVXbHpNTFdtQ1R6WmxlRDNSbFdkemdTVGhOZ0NySjNjSHpiV2NTSk40ekRSZ0dwZjg4UUtCZ0diTVxuQTVOeG44anhwUUdoMGNzdHVaNkFKRXdlZTRySEhHdEtjcnJ5aXJlRyt5YmhFUVBGcnJJWUF2SWNkMVlzSXF6blxuUStIWXNmOFY0VVFoM1hWSUhqc0VVVjV5OHduaFpycmp1NE4xNzhhRlZRK216eElJeUNBS3FZWFRETm5QMFp1ZVxucGhlL2RDVkpvQlFqTmZKcTJLRHVrUk9wOCttcnNQcnlBTVB0dCttbEFvR0JBSlhBNS8wYWg4M1h0S3U3UHcxaVxuTzBQKzEzdEZMdWVoTG1yV0NvZWxzNktYckg4RzJ3ODdGUmpVN1A2bkZJUEpFL05qWFAydjJSaXdkTXJ5SWx3NFxuaDBKWlMvNVAyT2M3bG9vcmZmeDljWEU5em1wWjNxYzMzWGhtV05UNlNrdVVrRWtMNFE5UjNSa0U1RjZhVUNhT1xuSW1ZSEE4UkxDMGdKUzhjclhxM2VDdFNVXG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iLA0KICAiY2xpZW50X2VtYWlsIjogImFydGlmYWN0LXdyaXRlckBwb2xlZXBvLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwNCiAgImNsaWVudF9pZCI6ICIxMTI2ODA5OTkxODM3MDcyNDQyNzQiLA0KICAiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLA0KICAidG9rZW5fdXJpIjogImh0dHBzOi8vb2F1dGgyLmdvb2dsZWFwaXMuY29tL3Rva2VuIiwNCiAgImF1dGhfcHJvdmlkZXJfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9vYXV0aDIvdjEvY2VydHMiLA0KICAiY2xpZW50X3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vcm9ib3QvdjEvbWV0YWRhdGEveDUwOS9hcnRpZmFjdC13cml0ZXIlNDBwb2xlZXBvLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwNCiAgInVuaXZlcnNlX2RvbWFpbiI6ICJnb29nbGVhcGlzLmNvbSINCn0NCg=="
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
         }
     }
 }
 
-test {
-    testLogging {
-        events 'started', 'passed'
-    }
-}
-
-test {
-    jvmArgs '-Xverify:none'
-}
-
-integrationTest {
-    jvmArgs '-Xverify:none'
-}
-
-integrationTest {
-    testLogging {
-        events 'started', 'passed'
-    }
+springBoot {
+    mainClass = 'spring.session.Application'
 }
