@@ -72,3 +72,12 @@ grails:
 endpoints:
     jmx:
         unique-names: true
+
+springsession:
+    strategy:
+        cookie:
+            name: mpm-session
+    redis:
+        connectionFactory:
+            hostName: redis.stage.poleepo.cloud
+            dbIndex: 3
