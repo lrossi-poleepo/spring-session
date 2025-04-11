@@ -2,10 +2,7 @@ package org.grails.plugins.springsession.converters;
 
 import org.springframework.core.serializer.Deserializer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
+import java.io.*;
 
 /**
  * @author jitendra
@@ -38,7 +35,7 @@ public class JdkDeserializer implements Deserializer<Object> {
         };
         try {
             return objectInputStream.readObject();
-        } catch (ClassNotFoundException e) {
+        } catch (InvalidClassException | ClassNotFoundException ice) {
             return null;
         }
     }
